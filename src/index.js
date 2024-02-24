@@ -1,6 +1,7 @@
 //require('dotenv').config({path: './env'})
 import dotenv from 'dotenv';
 import connectDB from "./db/index.js";
+import bodyParser from 'body-parser'; 
 dotenv.config({ path: './env' });
 //2nd method for connecting db
 connectDB()
@@ -10,6 +11,9 @@ connectDB()
 import userRoutes from './routes/userRoutes.js';
 import express from 'express';
 const app = express();
+
+app.use(bodyParser.json()); // Parse JSON bodies
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
 
 //Use routes
