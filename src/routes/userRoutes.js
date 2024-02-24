@@ -20,4 +20,4 @@ userRoutes.route('/:userId')
     .delete(handleDeleteUserById);
     //userRoutes.use('/users', userRoutes);
 //export default userRoutes;
-module.exports = userRoutes;
+export default userRoutes;

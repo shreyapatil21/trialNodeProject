@@ -1,5 +1,4 @@
-const User = require('../models/userModel.js');
-
+import User from '../models/userModel.js'
 async function handleGetAllUsers(req, res){
   try {
     const users = await User.find({});
@@ -79,10 +78,10 @@ async function handleDeleteUserById(req, res)  {
     }
 }
 
-module.exports = {
+export { 
   handleGetAllUsers,
   handleGetUserById,
   handleCreateUser,
   handleUpdateUserById,
-  handleDeleteUserById,
+  handleDeleteUserById
 };
