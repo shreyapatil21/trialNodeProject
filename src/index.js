@@ -1,12 +1,24 @@
 //require('dotenv').config({path: './env'})
 import dotenv from 'dotenv';
-
 import connectDB from "./db/index.js";
 dotenv.config({ path: './env' });
-
-
-connectDB()
 //2nd method for connecting db
+connectDB()
+
+
+//const userRoutes = require('./routes/userRoutes');
+import express from 'express';
+const app = express();
+app.use(express.json());
+
+// Use routes
+//app.use('/api', userRoutes);
+
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
+});
+
+
 
 /*
 //1st method for connecting db
