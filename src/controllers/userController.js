@@ -1,7 +1,9 @@
 import User from '../models/userModel.js'
 async function handleGetAllUsers(req, res){
   try {
-    const users = await User.find({});
+    const users = await User.find();
+    console.log(User);
+    console.log(users);
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -21,6 +23,7 @@ async function handleGetUserById(req, res){
 
 async function handleCreateUser(req, res){
   const body = req.body;
+  console.log(body);
   if(
     !body || 
     !body.username || 
@@ -42,9 +45,15 @@ async function handleCreateUser(req, res){
       lastname: body.lastname, 
       gender: body.gender,
     });
+    console.log("newUser: " ,newUser);
+    if (!newUser) {
+      // If user not found after creation, something went wrong
+      return res.status(500).json({ error: 'User creation failed' });
+  }
+
     res.status(201).json({message: "success! new user created"});
   } catch (error) {
-    res.status(400).json({ error: 'Bad Request' });
+    res.status(400).json({ error: 'Bad Request'+error });
   }
 }
 
