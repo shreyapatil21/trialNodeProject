@@ -1,15 +1,23 @@
-const express = require('express');
-const router = express.Router();
-const userController = require('../controllers/userController.js');
-
+import express from 'express';
+import {
+    handleGetAllUsers,
+  handleGetUserById,
+  handleCreateUser,
+  handleUpdateUserById,
+  handleDeleteUserById,
+} from '../controllers/userController.js';
+const userRoutes = express.Router();
 //router.get('/users', userController.handeleGetAllUsers);
 //router.post('/users', userController.handeleCreateUser);
 // I have merged above both statements in one statement
-router.route('/users').get(userController.handeleGetAllUsers).post(userController.handeleCreateUser);
+userRoutes.route('/')
+    .get(handleGetAllUsers)
+    .post(handleCreateUser);
 
-router.route('/users/:userId')
-    .get(userController.handeleGetUserById)
-    .put(userController.handeleUpdateUserById)
-    .delete(userController.handeleDeleteUserById);
-
-module.exports = router;
+userRoutes.route('/:userId')
+    .get(handleGetUserById)
+    .put(handleUpdateUserById)
+    .delete(handleDeleteUserById);
+    //userRoutes.use('/users', userRoutes);
+//export default userRoutes;
+module.exports = userRoutes;
