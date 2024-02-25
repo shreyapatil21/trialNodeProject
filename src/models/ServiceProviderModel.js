@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 const serviceProviderSchema = new mongoose.Schema({
     sp_user_id: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Number,
         required: true,
     },
     rating_points: {
@@ -15,18 +15,9 @@ const serviceProviderSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    categories: [
-        {
-            cat: {
-                type: String,
-                required: true,
-            },
-            c_nam: {
-                type: String,
-                required: true,
-            },
-        },
-    ],
+    categories: {
+        type: [{ type: String }],
+    },
     skills: [String],
     edu_back: [
         {

@@ -1,6 +1,6 @@
 // controllers/serviceProviderController.js
 
-import ServiceProvider from "../models/serviceProviderModel.js";
+import ServiceProvider from "../models/ServiceProviderModel.js";
 
 async function handleGetAllServiceProviders(req, res) {
     try {
@@ -30,7 +30,6 @@ async function handleCreateServiceProvider(req, res) {
     const body = req.body;
     if (
         !body ||
-        !body.sp_user_id ||
         !body.rating_points ||
         !body.council_bar_id ||
         !body.categories ||
