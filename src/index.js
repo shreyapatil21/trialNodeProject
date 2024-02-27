@@ -1,16 +1,16 @@
 //require('dotenv').config({path: './env'})
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import connectDB from "./db/index.js";
-import bodyParser from 'body-parser'; 
-dotenv.config({ path: './env' });
+import bodyParser from "body-parser";
+dotenv.config({ path: "./env" });
 //2nd method for connecting db
-connectDB()
-
+connectDB();
 
 //const userRoutes = require('./routes/userRoutes');
 import userRoutes from './routes/userRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import express from 'express';
+
 const app = express();
 
 app.use(bodyParser.json()); // Parse JSON bodies
@@ -18,13 +18,13 @@ app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
 
 //Use routes
-app.use('/users', userRoutes);
-app.use('/appointments', appointmentRoutes);
+
+app.use("/users", userRoutes);
+app.use("/service-providers", serviceProviderRoutes);
+
 app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
+    console.log(`Server is running on port ${process.env.PORT}`);
 });
-
-
 
 /*
 //1st method for connecting db
@@ -42,5 +42,3 @@ const app = express()
     }
 })()
 */
-
-
