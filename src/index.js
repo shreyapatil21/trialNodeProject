@@ -7,16 +7,9 @@ dotenv.config({ path: "./env" });
 connectDB();
 
 //const userRoutes = require('./routes/userRoutes');
-<<<<<<< HEAD
-import userRoutes from './routes/userRoutes.js';
-import appointmentRoutes from './routes/appointmentRoutes.js';
-import express from 'express';
-
-=======
 import userRoutes from "./routes/userRoutes.js";
 import feedbackRoutes from "./routes/FeedbackRoutes.js";
 import express from "express";
->>>>>>> 9bc3a904124f9a9fbdd837284ab6d6471b5b93aa
 const app = express();
 
 app.use(bodyParser.json()); // Parse JSON bodies
@@ -24,14 +17,11 @@ app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
 
 //Use routes
-<<<<<<< HEAD
 
 app.use("/users", userRoutes);
 app.use("/service-providers", serviceProviderRoutes);
-=======
 app.use("/users", userRoutes);
 app.use("/feedback", feedbackRoutes);
->>>>>>> 9bc3a904124f9a9fbdd837284ab6d6471b5b93aa
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
