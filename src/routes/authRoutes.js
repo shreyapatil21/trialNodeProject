@@ -1,42 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import express from 'express';
+const userRoutes = express.Router();
 
-const User = require('../models/User'); // Assuming you have a User model
+import {handleCreateUser} from '..controllers/userController.js';
+import {handleLoginOfUser} from '..controllers/authController.js';
 
 // Register a new user
-router.post('/register', async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Save user to the database
-    const user = new User({ username, email, password: hashedPassword });
-    await user.save();
-
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+userRoutes.post('/register', handleCreateUser);
 
 // Login
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+userRoutes.post('/login', handleLoginOfUser);
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, 'your_secret_key', { expiresIn: '1h' });
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-module.exports = router;
+export default userRoutes;

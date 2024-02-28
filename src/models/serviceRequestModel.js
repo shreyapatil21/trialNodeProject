@@ -3,7 +3,10 @@ import mongoose from 'mongoose';
 
 const serviceRequestSchema = new mongoose.Schema({
   request_id: { type: Number, required: false },
-  user_id: { type: String, required: true },
+  user_id: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User' 
+  },
   sp_user_id: { type: String, required: true },
   description: { type: String, required: true },
   req_status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], required: true },
