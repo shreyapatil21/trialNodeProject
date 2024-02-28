@@ -36,7 +36,7 @@ async function handleCreateServiceRequest(req, res) {
       time_date: new Date(body.time_date),
       service_request: body.service_request,
     });
-
+    await newServiceRequest.save(); // added this line on 27/2/24 (12:05 PM)
     res.status(201).json({ message: 'Success! New service request created' });
   } catch (error) {
     res.status(400).json({ error: 'Bad Request' + error });

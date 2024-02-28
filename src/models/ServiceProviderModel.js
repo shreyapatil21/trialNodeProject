@@ -4,8 +4,8 @@ import mongoose from "mongoose";
 
 const serviceProviderSchema = new mongoose.Schema({
     sp_user_id: {
-        type: Number,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
     },
     rating_points: {
         type: Number,
