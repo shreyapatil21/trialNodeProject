@@ -21,19 +21,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 //Use routes
-<<<<<<< HEAD
-=======
-app.use('/users', userRoutes);
-app.use('/user-stories', userStoryRoutes);
->>>>>>> e85051cc0d065ee6d5f1c7e399b49136cdbc22a9
 
+
+app.use('/user-stories', userStoryRoutes);
 app.use("/users", userRoutes);
 app.use("/service-providers", serviceProviderRoutes);
 app.use("/feedback", feedbackRoutes);
->>>>>>>>> Temporary merge branch 2
-
+app.use("/service-req",serviceRequestRoutes);
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 });
-
-
