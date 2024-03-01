@@ -1,5 +1,6 @@
 import User from '../models/userModel.js'
 import bcrypt from 'bcryptjs';
+
 async function handleGetAllUsers(req, res){
   try {
     const users = await User.find();
@@ -26,6 +27,7 @@ async function handleCreateUser(req, res){
   // Remove password field from response
   // Get user from frontend
   const {username, email, password, location, firstname, lastname, gender,birth_date,role} = req.body;
+  console.log("Body .......:", req.body);
   // validation
   if([username,email,password,location,firstname,lastname,gender, birth_date,role].some((field)=>
     field?.trim() === "")
@@ -61,7 +63,7 @@ async function handleCreateUser(req, res){
     // Return response
     return res.status(201).json({message: "User registered Successfully!"});
   } catch (error) {
-    res.status(400).json({ error: 'Server Bad Request'+error });
+    res.status(400).json({ error: 'Something went wrong while creating User '+error });
   }
 }
 

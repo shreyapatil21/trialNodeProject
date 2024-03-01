@@ -27,32 +27,54 @@ async function handleGetServiceProviderById(req, res) {
 }
 
 async function handleCreateServiceProvider(req, res) {
-    const body = req.body;
+    const {
+        council_bar_id, 
+        categories, 
+        edu_back, 
+        skills, 
+        service_type, 
+        service_name,
+        n_service_provided,
+        experience_years
+     } = req.body;
     if (
-        !body ||
-        !body.rating_points ||
-        !body.council_bar_id ||
-        !body.categories ||
-        !body.edu_back ||
-        !body.service_type ||
-        !body.service_name ||
-        !body.n_service_provided ||
-        !body.n_service_pending ||
-        !body.status ||
-        !body.experience_years
-    ) {
+        !(
+            council_bar_id || 
+            categories || 
+            edu_back || 
+            skills || 
+            service_name || 
+            service_type || 
+            n_service_provided || 
+            experience_years
+        )
+    ) 
+    {
         return res
             .status(400)
             .json({ message: "Required fields are missing." });
     }
     try {
-        const newServiceProvider = await ServiceProvider.create(body);
+        const newServiceProvider = await ServiceProvider.create(
+            council_bar_id, 
+            categories, 
+            edu_back, 
+            skills, 
+            service_type, 
+            service_name,
+            n_service_provided,
+            experience_years
+        );
+        console.log("newServiceProvider : " ,newServiceProvider);
+        if (!newUser) {
+            // If sp not found after creation, something went wrong
+            return res.status(500).json({ error: 'Sercive Provider creation failed' });
+        }
         res.status(201).json({
             message: "Success! New service provider created",
-            serviceProvider: newServiceProvider,
         });
     } catch (error) {
-        res.status(400).json({ error: "Bad Request" + error });
+        res.status(400).json({ error: "Something went wrong while creating SP " + error });
     }
 }
 

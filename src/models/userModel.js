@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import ServiceProvider from './ServiceProviderModel.js';
+import { handleCreateServiceProvider } from '../controllers/serviceProviderController.js';
+import bodyParser from "body-parser";
+import express from 'express';
+const spRoutes = express.Router();
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true},
@@ -26,9 +31,26 @@ const userSchema = new mongoose.Schema({
 // Save the password in encrypted form (25/2/24)
 userSchema.pre("save",async function(next){
   if(!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password,10)
-  next()
-})
+  this.password = await bcrypt.hash(this.password,10);
+  if(this.role === "Service Provider") {
+    try {
+      // Check if the corresponding SP record doesn't exist
+      const existingSP = await ServiceProvider.findOne({ sp_user_id: this._id });
+      if (!existingSP) {
+        // Create a new record in the SP table
+        spRoutes.post('/', handleCreateServiceProvider);
+        //await handleCreateServiceProvider();
+        await ServiceProvider.create({
+          sp_user_id: this._id
+        });
+        next();
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+  next();
+});
 
 // functio to check if the password is corret or not  (25/2/24)
 userSchema.methods.isPasswordCorrect = async function(password) {
