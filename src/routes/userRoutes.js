@@ -12,12 +12,10 @@ import {
 import {handleLoginOfUser, handleLogOutOfUser} from '../controllers/authController.js'; //added this on 28/2/24 by Shreya
 const userRoutes = express.Router();
 
-userRoutes.route('/')
-    .get(handleGetAllUsers)
-    .post(handleCreateUser);
+userRoutes.route('/').get(verifyJWT,handleGetAllUsers);
 
 userRoutes.route('/:userId')
-    .get(handleGetUserById)
+    .get(verifyJWT,handleGetUserById)
     .put(handleUpdateUserById)
     .delete(handleDeleteUserById);
 userRoutes.get('/profile/:userId',verifyJWT,handleGetUserProfile); //added this on 27/2/24 by Shreya

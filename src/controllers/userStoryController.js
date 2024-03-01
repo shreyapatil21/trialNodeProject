@@ -1,6 +1,34 @@
 // userStoryController.js
 import UserStory from '../models/userStoryModel.js';
+import { param,body, validationResult } from 'express-validator';
 
+const createStoryValidationRules  = [
+  body('user_id').notEmpty().withMessage('User ID is required'),
+  body('media_url').notEmpty().withMessage('Media URL is required'),
+  body('caption').notEmpty().withMessage('Caption is required'),
+  body('date').custom((value) => {
+    if (!moment(value, 'DD/MM/YYYY', true).isValid()) {
+      throw new Error('Date must be in the format dd/mm/yyyy');
+    }
+    return true;
+  }),
+];
+
+const updateStoryValidationRules = [
+  body('story_id').notEmpty().withMessage('Story ID is required'),
+  body('user_id').notEmpty().withMessage('User ID is required'),
+  body('media_url').notEmpty().withMessage('Media URL is required'),
+  body('caption').notEmpty().withMessage('Caption is required'),
+  body('date')
+    .notEmpty().withMessage('Date is required')
+    .custom((value) => {
+      if (!moment(value, 'DD/MM/YYYY', true).isValid()) {
+        throw new Error('Date must be in the format dd/mm/yyyy');
+      }
+      return true;
+    }),
+  body('view_count').optional().isInt().withMessage('View count must be an integer'),
+];
 async function handleGetAllUserStories(req, res) {
   try {
     const userStories = await UserStory.find();
@@ -23,13 +51,16 @@ async function handleGetUserStoryById(req, res) {
 
 async function handleCreateUserStory(req, res) {
   const body = req.body;
-  if (!body || !body.story_id || !body.user_id || !body.media_url || !body.caption || !body.date) {
-    return res.status(400).json({ message: 'All fields are required.' });
+  const {username, email, password, location, firstname, lastname, gender,birth_date,role} = req.body;
+  await Promise.all(createStoryValidationRules.map(validation => validation.run(req)));
+  
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ err: err.array() });
   }
 
   try {
     const newUserStory = await UserStory.create({
-      story_id: body.story_id,
       user_id: body.user_id,
       media_url: body.media_url,
       caption: body.caption,
@@ -46,6 +77,12 @@ async function handleCreateUserStory(req, res) {
 async function handleUpdateUserStoryById(req, res) {
   const storyId = req.params.storyId;
   const body = req.body;
+  await Promise.all(createStoryValidationRules.map(validation => validation.run(req)));
+  
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ err: err.array() });
+  }
   try {
     const updateUserStory = await UserStory.findByIdAndUpdate(storyId, {
       story_id: body.story_id,

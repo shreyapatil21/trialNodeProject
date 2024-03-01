@@ -1,5 +1,43 @@
 import User from '../models/userModel.js'
 import bcrypt from 'bcryptjs';
+import { param,body, validationResult } from 'express-validator';
+
+const createUserValidationRules = [
+  body('username').trim().notEmpty().isAlpha().withMessage('Username is required'),
+  body('email').trim().isEmail().withMessage('Invalid email'),
+  body('password').trim().isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  body('location').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Location is required'),
+  body('firstname').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Firstname is required'),
+  body('lastname').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Lastname is required'),
+  body('gender').optional().trim().notEmpty().isAlpha().isIn(['male', 'female']).withMessage('Gender is required'),
+  // console.log(body('birth_date')),
+//   body('birth_date').optional({ nullable: true }).trim().custom((value) => {
+//     if (value && !moment(value, 'DD-MM-YYYY', true).isValid()) {
+//         throw new Error('Birth date must be in the format DD-MM-YYYY');
+//     }
+//     return true;
+// }).withMessage('Birth date is invalid'),
+];
+
+const updateUserValidationRules = [
+  // param('userId').isNumeric().withMessage('User ID must be a valid number'),
+  body('username').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Username is required'),
+  body('email').optional().trim().isEmail().withMessage('Invalid email'),
+  body('password').optional().trim().isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  body('location').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Location is required'),
+  body('firstname').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Firstname is required'),
+  body('lastname').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Lastname is required'),
+  body('gender').optional().trim().notEmpty().isAlpha().isIn(['male', 'female']).withMessage('Gender is required'),
+  // body('birth_date').optional().trim().notEmpty().custom((value) => {
+  //   if (!moment(value, 'DD/MM/YYYY', true).isValid()) {
+  //     console.log(('Birth date must be in the format dd/mm/yyyy: ',value));
+  //     throw new Error('Birth date must be in the format dd/mm/yyyy: ',value);
+  //   }
+  //   return true;
+  // }).withMessage('Birth date is required'),
+  body('role').optional().trim().notEmpty().isIn(['Client','Service Provider','Admin']).withMessage('Role is required'),
+];
+
 async function handleGetAllUsers(req, res){
   try {
     const users = await User.find();
@@ -25,13 +63,16 @@ async function handleGetUserById(req, res){
 async function handleCreateUser(req, res){
   // Remove password field from response
   // Get user from frontend
+  console.log(req.body);
   const {username, email, password, location, firstname, lastname, gender,birth_date,role} = req.body;
-  // validation
-  if([username,email,password,location,firstname,lastname,gender, birth_date,role].some((field)=>
-    field?.trim() === "")
-    ){
-      res.status(400).json({ message: "All fields are required." });
-    }
+  console.log("DOB: ",req.body.birth_date);
+  await Promise.all(createUserValidationRules.map(validation => validation.run(req)));
+  
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ err: err.array() });
+  }
+  
     // Check if user already exist: username/email
     const existedUser = await User.findOne({
       $or: [{ username },{ email }]
@@ -57,6 +98,12 @@ async function handleCreateUser(req, res){
     if (!newUser) {
       // If user not found after creation, something went wrong
       return res.status(500).json({ error: 'User creation failed' });
+  }else{
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log(decoded);
+    if(decoded.role=="Service Provider"){
+      
+    }
   }
     // Return response
     return res.status(201).json({message: "User registered Successfully!"});
@@ -68,6 +115,12 @@ async function handleCreateUser(req, res){
 async function handleUpdateUserById  (req, res) {
     const userId = req.params.userId;
     const body = req.body;
+    await Promise.all(updateUserValidationRules.map(validation => validation.run(req)));
+  
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ err: err.array() });
+  }
     try {
         const updateUser = await User.findByIdAndUpdate(userId,{
           username: body.username, 
