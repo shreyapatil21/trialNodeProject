@@ -1,5 +1,7 @@
 import User from '../models/userModel.js'
 import ServiceProvider from '../models/ServiceProviderModel.js';
+import ServiceRequest from '../models/serviceRequestModel.js';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 import { param, body, validationResult } from 'express-validator';
@@ -42,11 +44,49 @@ const updateUserValidationRules = [
 
 async function handleGetAllUsers(req, res) {
   try {
-    const users = await User.find();
-    console.log(User);
-    console.log(users);
-    res.status(200).json(users);
+    const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    
+    if (decoded.role === "Service Provider") {
+      console.log("inside users get,",decoded._id);
+      const result = await ServiceRequest.aggregate([
+        {
+          $match: { sp_user_id: decoded._id } // Match specific sp_user_id
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user_id", // Field in ServiceRequest
+            foreignField: "_id", // Field in users
+            as: "matchedDocuments"
+          }
+        },
+        {
+          $unwind: "$matchedDocuments"
+        },
+        {
+          $project: {
+            _id: 0, // Exclude _id field if not needed
+            "matchedDocuments": 1 // Include all attributes of matchedDocuments
+          }
+        }
+      ]);
+
+      
+      console.log("result: ",result);
+      res.status(200).json(result);
+    }else if (decoded.role === "Admin") {
+      try {
+        const users = await User.find();
+        return res.status(200).json(users);
+      } catch (error) {
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }else {
+      res.status(403).json({ error: 'Unauthorized' });
+    }
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
@@ -105,24 +145,24 @@ async function handleCreateUser(req, res) {
       return res.status(500).json({ error: 'User creation failed' });
     } else {
       // const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-      console.log("else  user,",role);
+      console.log("else  user,", role);
       if (role == "Service Provider") {
         console.log("inside service provider");
-        const _id=newUser;
+        const _id = newUser;
         const requestData = {
-          _id,council_bar_id, categories, skills, edu_back, service_type, service_name,
+          _id, council_bar_id, categories, skills, edu_back, service_type, service_name,
           experience_years
         }
         try {
           const newServiceProvider = await ServiceProvider.create(requestData);
           return res.status(201).json({
-              message: "Success! New service provider created",
-              serviceProvider: newServiceProvider,
+            message: "Success! New service provider created",
+            serviceProvider: newServiceProvider,
           });
-      } catch (error) {
-        // const deleteUser = await User.findByIdAndDelete(newUser);
+        } catch (error) {
+          // const deleteUser = await User.findByIdAndDelete(newUser);
           return res.status(400).json({ error: "Bad Request" + error });
-      }
+        }
         // axios.post(url, requestData)
         //   .then(response => {
         //     console.log(response.data);
@@ -131,7 +171,7 @@ async function handleCreateUser(req, res) {
         //     console.error('Error:', error);
         //   });
       }
-      else{
+      else {
         console.log("else service provider");
       }
     }
@@ -181,6 +221,7 @@ async function handleDeleteUserById(req, res) {
 
 async function handleGetUserProfile(req, res) {
   try {
+
     const user = await User.findById(req.userId);
     res.json({ user });
   } catch (error) {

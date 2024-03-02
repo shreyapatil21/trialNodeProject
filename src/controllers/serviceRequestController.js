@@ -1,13 +1,34 @@
 // serviceRequestController.js
 import ServiceRequest from '../models/serviceRequestModel.js';
+import jwt from "jsonwebtoken"
+
+
 
 async function handleGetAllServiceRequests(req, res) {
-  try {
-    const serviceRequests = await ServiceRequest.find();
-    res.status(200).json(serviceRequests);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+  const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  
+  if(decoded.role == "Service Provider"){
+    try {
+      const sp_user_id = decoded._id;
+      const serviceRequests = await ServiceRequest.find({ sp_user_id});
+      return res.status(200).json(serviceRequests);
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+  }else if(decoded.role == "Admin"){
+    try {
+      const serviceRequests = await ServiceRequest.find();
+      return res.status(200).json(serviceRequests);
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }else{
+    return res.status(401).json({ error: 'Unauthorized Access' });
   }
+
+  
 }
 
 async function handleGetServiceRequestById(req, res) {
@@ -23,13 +44,14 @@ async function handleGetServiceRequestById(req, res) {
 
 async function handleCreateServiceRequest(req, res) {
   const body = req.body;
-  if (!body || !body.user_id || !body.sp_user_id || !body.description || !body.req_status || !body.time_date || !body.service_request) {
+  if (!body || !body.sp_user_id || !body.description || !body.req_status || !body.time_date || !body.service_request) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
-
+  const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
   try {
     const newServiceRequest = await ServiceRequest.create({
-      user_id: body.user_id,
+      user_id: decoded._id,
       sp_user_id: body.sp_user_id,
       description: body.description,
       req_status: body.req_status,
