@@ -1,6 +1,6 @@
 import User from '../models/userModel.js'
 import bcrypt from 'bcryptjs';
-import { param,body, validationResult } from 'express-validator';
+import { param, body, validationResult } from 'express-validator';
 
 const createUserValidationRules = [
   body('username').trim().notEmpty().isAlpha().withMessage('Username is required'),
@@ -11,12 +11,12 @@ const createUserValidationRules = [
   body('lastname').optional().trim().notEmpty().isAlpha().isLength({ min: 3 }).withMessage('Lastname is required'),
   body('gender').optional().trim().notEmpty().isAlpha().isIn(['male', 'female']).withMessage('Gender is required'),
   // console.log(body('birth_date')),
-//   body('birth_date').optional({ nullable: true }).trim().custom((value) => {
-//     if (value && !moment(value, 'DD-MM-YYYY', true).isValid()) {
-//         throw new Error('Birth date must be in the format DD-MM-YYYY');
-//     }
-//     return true;
-// }).withMessage('Birth date is invalid'),
+  //   body('birth_date').optional({ nullable: true }).trim().custom((value) => {
+  //     if (value && !moment(value, 'DD-MM-YYYY', true).isValid()) {
+  //         throw new Error('Birth date must be in the format DD-MM-YYYY');
+  //     }
+  //     return true;
+  // }).withMessage('Birth date is invalid'),
 ];
 
 const updateUserValidationRules = [
@@ -35,10 +35,10 @@ const updateUserValidationRules = [
   //   }
   //   return true;
   // }).withMessage('Birth date is required'),
-  body('role').optional().trim().notEmpty().isIn(['Client','Service Provider','Admin']).withMessage('Role is required'),
+  body('role').optional().trim().notEmpty().isIn(['Client', 'Service Provider', 'Admin']).withMessage('Role is required'),
 ];
 
-async function handleGetAllUsers(req, res){
+async function handleGetAllUsers(req, res) {
   try {
     const users = await User.find();
     console.log(User);
@@ -49,106 +49,119 @@ async function handleGetAllUsers(req, res){
   }
 }
 
-async function handleGetUserById(req, res){
-    const userId = req.params.userId;
-    try {
-        const newUser = await User.findById(userId);
-        if(!newUser) return res.status(404).json({ error: "user not found"});
-        return res.json(newUser);
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+async function handleGetUserById(req, res) {
+  const userId = req.params.userId;
+  try {
+    const newUser = await User.findById(userId);
+    if (!newUser) return res.status(404).json({ error: "user not found" });
+    return res.json(newUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
 
-async function handleCreateUser(req, res){
+async function handleCreateUser(req, res) {
   // Remove password field from response
   // Get user from frontend
   console.log(req.body);
-  const {username, email, password, location, firstname, lastname, gender,birth_date,role} = req.body;
-  console.log("DOB: ",req.body.birth_date);
+  const { username, email, password, location, firstname, lastname, gender, birth_date, role,
+    council_bar_id, categories, skills, edu_back, service_type, service_name,
+    experience_years } = req.body;
+  console.log("DOB: ", req.body.birth_date);
   await Promise.all(createUserValidationRules.map(validation => validation.run(req)));
-  
+
   const err = validationResult(req);
   if (!err.isEmpty()) {
     return res.status(400).json({ err: err.array() });
   }
-  
-    // Check if user already exist: username/email
-    const existedUser = await User.findOne({
-      $or: [{ username },{ email }]
-    })
-    if(existedUser){return res.status(409).json({ message: "User with this username or email already exists." })}
-    // Create a user object (newUser) - create entry in db
+
+  // Check if user already exist: username/email
+  const existedUser = await User.findOne({
+    $or: [{ username }, { email }]
+  })
+  if (existedUser) { return res.status(409).json({ message: "User with this username or email already exists." }) }
+  // Create a user object (newUser) - create entry in db
   try {
-   // const hashPassword = await bcrypt.hash(password, 10); //this line added- generally not needed
-    const newUser = await User.create({ 
-      username, 
-      email, 
+    // const hashPassword = await bcrypt.hash(password, 10); //this line added- generally not needed
+    const newUser = await User.create({
+      username,
+      email,
       password, //this line changed
-      location, 
-      firstname, 
-      lastname, 
+      location,
+      firstname,
+      lastname,
       gender,
       birth_date,
       role
     });
     //newUser.save();  //this line added
     // Check for user creation 
-    console.log("newUser: " ,newUser);
+    console.log("newUser: ", newUser);
     if (!newUser) {
       // If user not found after creation, something went wrong
       return res.status(500).json({ error: 'User creation failed' });
-  }else{
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log(decoded);
-    if(decoded.role=="Service Provider"){
-      
+    } else {
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      console.log(decoded);
+      if (decoded.role == "Service Provider") {
+        const requestData = {
+          council_bar_id, categories, skills, edu_back, service_type, service_name,
+          experience_years
+        }
+        axios.post("http://localhost:8000/service-providers/", requestData)
+          .then(response => {
+            console.log(response.data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      }
     }
-  }
     // Return response
-    return res.status(201).json({message: "User registered Successfully!"});
+    return res.status(201).json({ message: "User registered Successfully!" });
   } catch (error) {
-    res.status(400).json({ error: 'Server Bad Request'+error });
+    res.status(400).json({ error: 'Server Bad Request' + error });
   }
 }
 
-async function handleUpdateUserById  (req, res) {
-    const userId = req.params.userId;
-    const body = req.body;
-    await Promise.all(updateUserValidationRules.map(validation => validation.run(req)));
-  
+async function handleUpdateUserById(req, res) {
+  const userId = req.params.userId;
+  const body = req.body;
+  await Promise.all(updateUserValidationRules.map(validation => validation.run(req)));
+
   const err = validationResult(req);
   if (!err.isEmpty()) {
     return res.status(400).json({ err: err.array() });
   }
-    try {
-        const updateUser = await User.findByIdAndUpdate(userId,{
-          username: body.username, 
-          email: body.email, 
-          password: body.password, 
-          location: body.location, 
-          firstname: body.firstname, 
-          lastname: body.lastname, 
-          gender: body.gender,});
-        if(!updateUser) return res.status(404).json({ error: "user not found"});
-        return res.json(updateUser);
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+  try {
+    const updateUser = await User.findByIdAndUpdate(userId, {
+      username: body.username,
+      email: body.email,
+      password: body.password,
+      location: body.location,
+      firstname: body.firstname,
+      lastname: body.lastname,
+      gender: body.gender,
+    });
+    if (!updateUser) return res.status(404).json({ error: "user not found" });
+    return res.json(updateUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
 
-async function handleDeleteUserById(req, res)  {
-    const userId = req.params.userId;
-    try {
-        const deleteUser = await User.findByIdAndDelete(userId);
-        if(!deleteUser) return res.status(404).json({ error: "user not found"});
-        return res.json({message: "User deleted successfully"});
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+async function handleDeleteUserById(req, res) {
+  const userId = req.params.userId;
+  try {
+    const deleteUser = await User.findByIdAndDelete(userId);
+    if (!deleteUser) return res.status(404).json({ error: "user not found" });
+    return res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
 
-async function handleGetUserProfile(req,res) {
+async function handleGetUserProfile(req, res) {
   try {
     const user = await User.findById(req.userId);
     res.json({ user });
@@ -157,7 +170,7 @@ async function handleGetUserProfile(req,res) {
   }
 }
 
-export { 
+export {
   handleGetAllUsers,
   handleGetUserById,
   handleCreateUser,
