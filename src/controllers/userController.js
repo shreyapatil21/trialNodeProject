@@ -108,8 +108,9 @@ async function handleCreateUser(req, res) {
       console.log("else  user,",role);
       if (role == "Service Provider") {
         console.log("inside service provider");
+        const _id=newUser;
         const requestData = {
-          council_bar_id, categories, skills, edu_back, service_type, service_name,
+          _id,council_bar_id, categories, skills, edu_back, service_type, service_name,
           experience_years
         }
         try {
