@@ -9,7 +9,7 @@ const serviceProviderSchema = new mongoose.Schema({
     },
     rating_points: {
         type: Number,
-        required: true,
+        // required: true,
     },
     council_bar_id: {
         type: String,
@@ -37,16 +37,16 @@ const serviceProviderSchema = new mongoose.Schema({
     bio_content: String,
     n_service_provided: {
         type: Number,
-        required: true,
+        // required: true,
     },
     n_service_pending: {
         type: Number,
-        required: true,
+        // required: true,
     },
     organization: String,
     status: {
         type: Boolean,
-        required: true,
+        // required: true,
     },
     experience_years: {
         type: Number,

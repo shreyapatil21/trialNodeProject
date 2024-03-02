@@ -1,7 +1,9 @@
 import User from '../models/userModel.js'
+import ServiceProvider from '../models/ServiceProviderModel.js';
 import bcrypt from 'bcryptjs';
+import axios from 'axios';
 import { param, body, validationResult } from 'express-validator';
-
+const url = "http://localhost:8000/service-providers/";
 const createUserValidationRules = [
   body('username').trim().notEmpty().isAlpha().withMessage('Username is required'),
   body('email').trim().isEmail().withMessage('Invalid email'),
@@ -99,28 +101,43 @@ async function handleCreateUser(req, res) {
     console.log("newUser: ", newUser);
     if (!newUser) {
       // If user not found after creation, something went wrong
+      console.log("not user");
       return res.status(500).json({ error: 'User creation failed' });
     } else {
-      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-      console.log(decoded);
-      if (decoded.role == "Service Provider") {
+      // const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      console.log("else  user,",role);
+      if (role == "Service Provider") {
+        console.log("inside service provider");
         const requestData = {
           council_bar_id, categories, skills, edu_back, service_type, service_name,
           experience_years
         }
-        axios.post("http://localhost:8000/service-providers/", requestData)
-          .then(response => {
-            console.log(response.data);
-          })
-          .catch(error => {
-            console.error('Error:', error);
+        try {
+          const newServiceProvider = await ServiceProvider.create(requestData);
+          return res.status(201).json({
+              message: "Success! New service provider created",
+              serviceProvider: newServiceProvider,
           });
+      } catch (error) {
+        // const deleteUser = await User.findByIdAndDelete(newUser);
+          return res.status(400).json({ error: "Bad Request" + error });
+      }
+        // axios.post(url, requestData)
+        //   .then(response => {
+        //     console.log(response.data);
+        //   })
+        //   .catch(error => {
+        //     console.error('Error:', error);
+        //   });
+      }
+      else{
+        console.log("else service provider");
       }
     }
     // Return response
     return res.status(201).json({ message: "User registered Successfully!" });
   } catch (error) {
-    res.status(400).json({ error: 'Server Bad Request' + error });
+    return res.status(400).json({ error: 'Server Bad Request' + error });
   }
 }
 

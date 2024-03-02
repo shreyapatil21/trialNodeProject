@@ -30,15 +30,11 @@ async function handleCreateServiceProvider(req, res) {
     const body = req.body;
     if (
         !body ||
-        !body.rating_points ||
         !body.council_bar_id ||
         !body.categories ||
         !body.edu_back ||
         !body.service_type ||
         !body.service_name ||
-        !body.n_service_provided ||
-        !body.n_service_pending ||
-        !body.status ||
         !body.experience_years
     ) {
         return res
