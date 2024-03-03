@@ -2,7 +2,9 @@
 import mongoose from 'mongoose';
 
 const userStorySchema = new mongoose.Schema({
-  story_id: { type: Number, required: true },
+  story_id: { type: Number, 
+    // required: true 
+  },
   user_id: {
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User' 
