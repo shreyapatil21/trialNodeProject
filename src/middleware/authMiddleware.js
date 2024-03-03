@@ -30,38 +30,40 @@ async function verifyJWT(req, res, next) {
       }
     }
     */
-    const params = req.params
-    console.log(params);
-    console.log("user: ", user);
-    console.log("userpath: ", req.path);
-    if (req.path === "/" && ((user.role == "Service Provider") || (user.role == "Admin"))) {
-      console.log("inside users/;userid");
-      next();
-    }
-    else if (req.path == `/${params.userId}`) {
-      const method = req.method;
-      console.log(method);
-      if (method === "PUT") {
-        next()
-      } else if (method === "DELETE" && ((user.role == "Service Provider") || (user.role == "Admin"))) {
-        next()
-      }
-      else if (method === "GET" && (user.role == "Service Provider") || (user.role == "Admin")) {
-        next();
-      }
-      else {
-        return res.status(401).json({ error: 'Access Denied' });
-      }
-    }
+  //   const params = req.params
+  //   console.log(params);
+  //   console.log("user: ", user);
+  //   console.log("userpath: ", req.path);
+  //   if (req.path === "/" && ((user.role == "Service Provider") || (user.role == "Admin"))) {
+  //     console.log("inside users/;userid");
+  //     next();
+  //   }
+  //   else if (req.path == `/${params.userId}`) {
+  //     const method = req.method;
+  //     console.log(method);
+  //     if (method === "PUT") {
+  //       next()
+  //     } else if (method === "DELETE" && ((user.role == "Service Provider") || (user.role == "Admin"))) {
+  //       next()
+  //     }
+  //     else if (method === "GET" && (user.role == "Service Provider") || (user.role == "Admin")) {
+  //       next();
+  //     }
+  //     else {
+  //       // return res.status(401).json({ error: 'Access Denied' });
+  //       next();
+  //     }
+  //   }
 
-    else if (req.path == `/profile/${params.userId}` && ((user.role == "Service Provider") || (user.role == "Admin"))) {
-      console.log("inside users/;userid", req.path, " : ", `/${params.userId}`);
-      next();
-    }
-    else {// if(req.path === "/users/")
-      console.log("access denied");
-      return res.status(401).json({ error: 'Access Denied' });
-    }
+  //   else if (req.path == `/profile/${params.userId}` && ((user.role == "Service Provider") || (user.role == "Admin"))) {
+  //     console.log("inside users/;userid", req.path, " : ", `/${params.userId}`);
+  //     next();
+  //   }
+  //   else {// if(req.path === "/users/")
+  //     console.log("access denied");
+  //     return res.status(401).json({ error: 'Access Denied' });
+  //   }
+    next();
   } catch (error) {
     res.status(401).json({ error: 'Invalid access token' });
   }
