@@ -26,7 +26,7 @@ const updateStoryValidationRules = [
 async function handleGetAllUserStories(req, res) {
   const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
   const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  
+  const sp_user_id = req.params.sp_user_id;
   if(decoded.role == "Service Provider"){
     try {
       const sp_user_id = decoded._id;
@@ -43,8 +43,13 @@ async function handleGetAllUserStories(req, res) {
     } catch (error) {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-  }else{
-    return res.status(401).json({ error: 'Unauthorized Access' });
+  }else if(decoded.role == "Client"){
+    try {
+      const userStories = await UserStory.find({ sp_user_id});
+      return res.status(200).json(userStories);
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 }
 

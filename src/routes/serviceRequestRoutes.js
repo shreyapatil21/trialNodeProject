@@ -1,5 +1,6 @@
 // serviceRequestRoutes.js
 import express from 'express';
+import { verifyJWT } from '../middleware/authMiddleware.js'
 import {
   handleGetAllServiceRequests,
   handleGetServiceRequestById,
@@ -11,13 +12,13 @@ import {
 const serviceRequestRoutes = express.Router();
 
 serviceRequestRoutes.route('/')
-  .get(handleGetAllServiceRequests)
-  .post(handleCreateServiceRequest);
+  .get(verifyJWT,handleGetAllServiceRequests)
+  .post(verifyJWT,handleCreateServiceRequest);
 
-serviceRequestRoutes.route("/:requestId/:newStatus",handleDeleteServiceRequestById);
+serviceRequestRoutes.route("/:requestId/:newStatus").get(verifyJWT,handleDeleteServiceRequestById);
 serviceRequestRoutes.route('/:requestId')
-  .get(handleGetServiceRequestById)
-  .put(handleUpdateServiceRequestById);
+  .get(verifyJWT,handleGetServiceRequestById)
+  .put(verifyJWT,handleUpdateServiceRequestById);
 
 
 

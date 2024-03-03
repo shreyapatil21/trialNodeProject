@@ -1,5 +1,6 @@
 // appointmentRoutes.js
 import express from 'express';
+import { verifyJWT } from '../middleware/authMiddleware.js'
 import {
   handleGetAllAppointments,
   handleGetAppointmentById,
@@ -11,12 +12,12 @@ import {
 const appointmentRoutes = express.Router();
 
 appointmentRoutes.route('/')
-  .get(handleGetAllAppointments)
-  .post(handleCreateAppointment);
+  .get(verifyJWT,handleGetAllAppointments)
+  .post(verifyJWT,handleCreateAppointment);
 
 appointmentRoutes.route('/:appointmentId')
-  .get(handleGetAppointmentById)
-  .put(handleUpdateAppointmentById)
-  .delete(handleDeleteAppointmentById);
+  .get(verifyJWT,handleGetAppointmentById)
+  .put(verifyJWT,handleUpdateAppointmentById)
+  .delete(verifyJWT,handleDeleteAppointmentById);
 
 export default appointmentRoutes;

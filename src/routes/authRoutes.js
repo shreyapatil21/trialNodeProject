@@ -1,4 +1,5 @@
 import express from 'express';
+import { verifyJWT } from '../middleware/authMiddleware.js'
 const userRoutes = express.Router();
 
 import {handleCreateUser} from '..controllers/userController.js';

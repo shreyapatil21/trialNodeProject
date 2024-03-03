@@ -1,6 +1,7 @@
 // routes/serviceProviderRoutes.js
 
 import express from "express";
+import { verifyJWT } from '../middleware/authMiddleware.js'
 import {
     handleGetAllServiceProviders,
     handleGetServiceProviderById,

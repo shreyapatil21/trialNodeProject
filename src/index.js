@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import bodyParser from "body-parser";
 dotenv.config({ path: "./env" });
+
 //2nd method for connecting db
 connectDB();
 

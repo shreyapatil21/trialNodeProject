@@ -1,5 +1,6 @@
 // userStoryRoutes.js
 import express from 'express';
+import { verifyJWT } from '../middleware/authMiddleware.js'
 import {
   handleGetAllUserStories,
   handleGetUserStoryById,
@@ -12,13 +13,13 @@ import {
 const userStoryRoutes = express.Router();
 
 userStoryRoutes.route('/')
-  .get(handleGetAllUserStories)
-  .post(handleCreateUserStory);
+  .get(verifyJWT,handleGetAllUserStories)
+  .post(verifyJWT,handleCreateUserStory);
 
 userStoryRoutes.route('/:storyId')
-  .get(handleGetUserStoryById)
-  .put(handleUpdateUserStoryById)
-  .patch(handleUpdateViewCount)
-  .delete(handleDeleteUserStoryById);
+  .get(verifyJWT,handleGetUserStoryById)
+  .put(verifyJWT,handleUpdateUserStoryById)
+  .patch(verifyJWT,handleUpdateViewCount)
+  .delete(verifyJWT,handleDeleteUserStoryById);
 
 export default userStoryRoutes;

@@ -1,10 +1,12 @@
 // routes/FeedbackRoutes.js
 
 import express from "express";
+import { verifyJWT } from '../middleware/authMiddleware.js'
 import {
     handleGetAllFeedback,
     handleGetFeedbackById,
     handleCreateFeedback,
+    handleUpdateFeedbackIsDeletedStatus,
 } from "../controllers/FeedbackController.js";
 
 const router = express.Router();

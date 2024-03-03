@@ -16,8 +16,8 @@ userRoutes.route('/').get(verifyJWT,handleGetAllUsers);
 
 userRoutes.route('/:userId')
     .get(verifyJWT,handleGetUserById)
-    .put(handleUpdateUserById)
-    .delete(handleDeleteUserById);
+    .put(verifyJWT,handleUpdateUserById)
+    .delete(verifyJWT,handleDeleteUserById);
 userRoutes.get('/profile/:userId',verifyJWT,handleGetUserProfile); //added this on 27/2/24 by Shreya
 // Register a new user
 userRoutes.post('/register', handleCreateUser);  //added this on 28/2/24 by Shreya
