@@ -12,6 +12,7 @@ import serviceProviderRoutes from './routes/serviceProviderRoutes.js';
 import serviceRequestRoutes from './routes/serviceRequestRoutes.js';
 import cookieParser from 'cookie-parser';
 import userStoryRoutes from './routes/userStoryRoutes.js';
+import appointmentRoutes from "./routes/appointmentRoutes.js";
 import express from 'express';
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/users", userRoutes);
 app.use("/service-providers", serviceProviderRoutes);
 app.use("/feedback", feedbackRoutes);
 app.use("/service-req",serviceRequestRoutes);
+app.use("/appointment",appointmentRoutes)
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 });

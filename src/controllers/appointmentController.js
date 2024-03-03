@@ -1,13 +1,39 @@
 // appointmentController.js
 import Appointment from '../models/appointmentModel.js';
+import jwt from "jsonwebtoken"
 
 async function handleGetAllAppointments(req, res) {
-  try {
-    const appointments = await Appointment.find();
-    res.status(200).json(appointments);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+  const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    if (decoded.role == "Service Provider") {
+        try {
+            const sp_user_id = decoded._id;
+            const appointmentDetails = await Appointment.find({ sp_user_id });
+            return res.status(200).json(appointmentDetails);
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+    } else if (decoded.role == "Admin") {
+        try {
+            const appointmentDetails = await Appointment.find();
+            return res.status(200).json(appointmentDetails);
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }else if (decoded.role == "Client") {
+      try {
+          const user_id = decoded._id;
+          const appointmentDetails = await Appointment.find({ user_id });
+          return res.status(200).json(appointmentDetails);
+      } catch (error) {
+          return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+  } else {
+        return res.status(401).json({ error: 'Unauthorized Access' });
+    }
 }
 
 async function handleGetAppointmentById(req, res) {
@@ -23,17 +49,20 @@ async function handleGetAppointmentById(req, res) {
 
 async function handleCreateAppointment(req, res) {
   const body = req.body;
-  if (!body || !body.user_id || !body.topic || !body.description || !body.date_time || !body.appointment_status) {
+  if (!body || !body.sp_user_id|| !body.topic || !body.description || !body.date_time ) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
-
+  const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  const uid = decoded._id;
   try {
     const newAppointment = await Appointment.create({
-      user_id: body.user_id,
+      user_id: uid,
+      sp_user_id: body.sp_user_id,
       topic: body.topic,
       description: body.description,
       date_time: new Date(body.date_time),
-      appointment_status: body.appointment_status,
+      appointment_status: "Pending",
     });
 
     res.status(201).json({ message: 'Success! New appointment created' });
@@ -47,7 +76,6 @@ async function handleUpdateAppointmentById(req, res) {
   const body = req.body;
   try {
     const updateAppointment = await Appointment.findByIdAndUpdate(appointmentId, {
-      user_id: body.user_id,
       topic: body.topic,
       description: body.description,
       date_time: new Date(body.date_time),

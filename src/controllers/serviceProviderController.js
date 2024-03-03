@@ -1,7 +1,7 @@
 // controllers/serviceProviderController.js
 
 import ServiceProvider from "../models/ServiceProviderModel.js";
-
+import jwt from "jsonwebtoken"
 async function handleGetAllServiceProviders(req, res) {
     try {
         const serviceProviders = await ServiceProvider.find();

@@ -5,6 +5,7 @@ import {
   handleGetUserStoryById,
   handleCreateUserStory,
   handleUpdateUserStoryById,
+  handleUpdateViewCount,
   handleDeleteUserStoryById,
 } from '../controllers/userStoryController.js';
 
@@ -17,6 +18,7 @@ userStoryRoutes.route('/')
 userStoryRoutes.route('/:storyId')
   .get(handleGetUserStoryById)
   .put(handleUpdateUserStoryById)
+  .patch(handleUpdateViewCount)
   .delete(handleDeleteUserStoryById);
 
 export default userStoryRoutes;

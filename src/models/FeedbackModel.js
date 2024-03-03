@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 const feedbackSchema = new mongoose.Schema({
     feedback_id: {
         type: Number,
-        required: true,
+        // required: true,
     },
     user_id: { 
         type: mongoose.Schema.Types.ObjectId, 
@@ -26,7 +26,7 @@ const feedbackSchema = new mongoose.Schema({
     },
     user: {
         type: Number,
-        required: true,
+        // required: true,
     },
 });
 
