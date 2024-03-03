@@ -84,5 +84,27 @@ async function handleCreateFeedback(req, res) {
         res.status(400).json({ error: "Bad Request" + error });
     }
 }
-
-export { handleGetAllFeedback, handleGetFeedbackById, handleCreateFeedback };
+async function handleUpdateFeedbackIsDeletedStatus(req,res) {
+    const feedbackId = req.params.feedbackId;
+    const newStatus = req.params.newStatus;
+    try {
+      // Find the feedback by feedbackId and update the is_deleted field
+      const updatedFeedback = await Feedback.findOneAndUpdate(
+        { _id: feedbackId }, // Query for the feedback by its _id
+        { $set: { is_deleted: newStatus } }, // Set the new value for is_deleted
+        { new: true } // Return the updated document
+      );
+  
+      if (updatedFeedback) {
+        console.log('Feedback is_deleted status updated:', updatedFeedback);
+        return updatedFeedback;
+      } else {
+        console.log('Feedback not found');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error updating feedback is_deleted status:', error);
+      throw error;
+    }
+  }
+export { handleGetAllFeedback, handleGetFeedbackById, handleCreateFeedback ,handleUpdateFeedbackIsDeletedStatus};

@@ -14,9 +14,11 @@ serviceRequestRoutes.route('/')
   .get(handleGetAllServiceRequests)
   .post(handleCreateServiceRequest);
 
+serviceRequestRoutes.route("/:requestId/:newStatus",handleDeleteServiceRequestById);
 serviceRequestRoutes.route('/:requestId')
   .get(handleGetServiceRequestById)
-  .put(handleUpdateServiceRequestById)
-  .delete(handleDeleteServiceRequestById);
+  .put(handleUpdateServiceRequestById);
+
+
 
 export default serviceRequestRoutes;

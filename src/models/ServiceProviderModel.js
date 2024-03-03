@@ -52,6 +52,7 @@ const serviceProviderSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    is_block:Boolean,
 });
 
 const ServiceProvider = mongoose.model(

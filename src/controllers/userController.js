@@ -210,12 +210,25 @@ async function handleUpdateUserById(req, res) {
 
 async function handleDeleteUserById(req, res) {
   const userId = req.params.userId;
+  const newStatus = req.params.newstatus
   try {
-    const deleteUser = await User.findByIdAndDelete(userId);
-    if (!deleteUser) return res.status(404).json({ error: "user not found" });
-    return res.json({ message: "User deleted successfully" });
+    // Find the user by userId and update the is_blocked field
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId }, // Query for the user by their _id
+      { $set: { is_blocked: newStatus } }, // Set the new value for is_blocked
+      { new: true } // Return the updated document
+    );
+
+    if (updatedUser) {
+      console.log('User blocked status updated:', updatedUser);
+      return res.status(200).json({ msg: updatedUser});
+    } else {
+      console.log('User not found');
+      return res.status(404).json({ error: "user not found" });;
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error updating user blocked status:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 

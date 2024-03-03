@@ -12,6 +12,10 @@ const serviceRequestSchema = new mongoose.Schema({
   req_status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], required: true },
   time_date: { type: Date, required: true },
   service_request: { type: String, required: true },
+  is_deleted: {
+    type: Boolean,
+    default: true // Default value set to true
+  }
 });
 
 const ServiceRequest = mongoose.model('service_request', serviceRequestSchema);

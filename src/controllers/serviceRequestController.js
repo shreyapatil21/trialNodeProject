@@ -56,7 +56,7 @@ async function handleCreateServiceRequest(req, res) {
       description: body.description,
       req_status: body.req_status,
       time_date: new Date(body.time_date),
-      service_request: body.service_request,
+      service_request: body.service_request,  
     });
     await newServiceRequest.save(); // added this line on 27/2/24 (12:05 PM)
     res.status(201).json({ message: 'Success! New service request created' });
@@ -86,12 +86,25 @@ async function handleUpdateServiceRequestById(req, res) {
 
 async function handleDeleteServiceRequestById(req, res) {
   const requestId = req.params.requestId;
+  const newStatus = req.params.newstatus
   try {
-    const deleteServiceRequest = await ServiceRequest.findByIdAndDelete(requestId);
-    if (!deleteServiceRequest) return res.status(404).json({ error: 'Service request not found' });
-    return res.json({ message: 'Service request deleted successfully' });
+    // Find the service request by requestId and update the is_deleted field
+    const updatedRequest = await ServiceRequest.findOneAndUpdate(
+      { _id: requestId }, // Query for the service request by its _id
+      { $set: { is_deleted: newStatus } }, // Set the new value for is_deleted
+      { new: true } // Return the updated document
+    );
+
+    if (updatedRequest) {
+      console.log('Service request is_deleted status updated:', updatedRequest);
+      return res.status(200).json({ msg : updatedRequest});;
+    } else {
+      console.log('Service request not found');
+      return res.status(404).json({ error: 'Service request not found' });
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error updating service request is_deleted status:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 

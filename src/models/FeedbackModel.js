@@ -28,6 +28,10 @@ const feedbackSchema = new mongoose.Schema({
         type: Number,
         // required: true,
     },
+    is_deleted: {
+        type: Boolean,
+        default: true // Default value set to true
+      }
 });
 
 const Feedback = mongoose.model("Feedback", feedbackSchema);

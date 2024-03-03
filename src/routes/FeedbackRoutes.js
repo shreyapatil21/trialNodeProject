@@ -18,4 +18,6 @@ router.get("/:feedbackId", handleGetFeedbackById);
 // Route to create a new feedback
 router.post("/", handleCreateFeedback);
 
+// Route to update delete status of feedback
+router.post("/:feedbackId/:newStatus", handleUpdateFeedbackIsDeletedStatus);
 export default router;
