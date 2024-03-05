@@ -2,6 +2,8 @@ import User from '../models/userModel.js'
 import ServiceProvider from '../models/ServiceProviderModel.js';
 import ServiceRequest from '../models/serviceRequestModel.js';
 import jwt from 'jsonwebtoken';
+import { upload } from '../middleware/multerMiddleware.js';
+import {uploadOnCloudinary} from '../utils/Cloudinary.js';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 import { param, body, validationResult } from 'express-validator';
@@ -183,7 +185,8 @@ async function handleCreateUser(req, res) {
 }
 
 async function handleUpdateUserById(req, res) {
-  const userId = req.params.userId;
+  //const userId = req.params.userId;
+  const userId = req.user?._id;
   const body = req.body;
   await Promise.all(updateUserValidationRules.map(validation => validation.run(req)));
 
@@ -206,6 +209,49 @@ async function handleUpdateUserById(req, res) {
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
+}
+
+async function handleUpdateUserFields(req, res) {
+  const {location, firstname, lastname} = req.body;
+  const userId = req.params.userId;
+  await Promise.all(updateUserValidationRules.map(validation => validation.run(req)));
+
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    return res.status(400).json({ err: err.array() });
+  }
+  try {
+    const updateUser = await User.findByIdAndUpdate(userId, {
+      $set: {
+        location,
+        firstname,
+        lastname,
+      }
+    });
+    if (!updateUser) return res.status(404).json({ error: "user not found" });
+    return res.json(updateUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Error while updating user fields' });
+  }
+}
+
+async function changeCurrentPassword(req, res) {
+  const {oldPassword, newPassword} = req.body;
+    const user = await User.findById(req.user?._id);
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if (!isPasswordCorrect) {
+      return res.status(400).json( {error: "Invalid old password"} );
+    }
+
+    user.password = newPassword;
+    await user.save({validateBeforeSave: false});
+}
+
+async function getCurrentUser (req, res) {
+  return res
+  .status(200)
+  .json( {message : "User fetched successfully"} );
 }
 
 async function handleDeleteUserById(req, res) {
@@ -249,4 +295,6 @@ export {
   handleUpdateUserById,
   handleDeleteUserById,
   handleGetUserProfile,
+  changeCurrentPassword,
+  handleUpdateUserFields
 };
