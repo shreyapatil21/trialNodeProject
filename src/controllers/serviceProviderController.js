@@ -71,7 +71,10 @@ async function handleCreateServiceProvider(req, res) {
 }
 
 async function handleUpdateServiceProviderById(req, res) {
-    const serviceProviderId = req.params.serviceProviderId;
+    
+    const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const serviceProviderId = decoded._id;
     const body = req.body;
     try {
         const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(

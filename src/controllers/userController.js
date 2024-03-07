@@ -212,8 +212,10 @@ async function handleUpdateUserById(req, res) {
 }
 
 async function handleUpdateUserFields(req, res) {
+  const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
   const {location, firstname, lastname} = req.body;
-  const userId = req.params.userId;
+  const userId = decoded._id;
   await Promise.all(updateUserValidationRules.map(validation => validation.run(req)));
 
   const err = validationResult(req);
@@ -280,9 +282,10 @@ async function handleDeleteUserById(req, res) {
 
 async function handleGetUserProfile(req, res) {
   try {
-
-    const user = await User.findById(req.userId);
-    res.json({ user });
+    const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(decoded._id);
+    res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }

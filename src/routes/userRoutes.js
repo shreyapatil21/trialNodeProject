@@ -20,7 +20,7 @@ userRoutes.route('/').get(verifyJWT,handleGetAllUsers);
 //     .get(verifyJWT,handleGetUserById)
 //     .put(verifyJWT,handleUpdateUserById)
 //     .delete(verifyJWT,handleDeleteUserById);
-userRoutes.get('/profile/:userId',verifyJWT,handleGetUserProfile); //added this on 27/2/24 by Shreya
+userRoutes.get('/profile',verifyJWT,handleGetUserProfile); //added this on 27/2/24 by Shreya
 // Register a new user
 userRoutes.post('/register', handleCreateUser);  //added this on 28/2/24 by Shreya
 // Login
