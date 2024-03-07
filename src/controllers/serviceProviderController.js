@@ -14,6 +14,24 @@ async function handleGetAllServiceProviders(req, res) {
 async function handleGetServiceProviderById(req, res) {
     const serviceProviderId = req.params.serviceProviderId;
     try {
+
+        const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+        if (decoded.role == "Service Provider") {
+            try {
+                console.log("serive provider profile");
+                const sp_user_id = decoded._id;
+                const feedbacks = await ServiceProvider.find({_id:sp_user_id});
+                console.log(feedbacks,sp_user_id);
+                return res.status(200).json(feedbacks);
+            } catch (error) {
+                console.log(error);
+                return res.status(500).json({ error: 'Internal Server Error 1' });
+            }
+
+        }
+        console.log("out: ")
         const serviceProvider =
             await ServiceProvider.findById(serviceProviderId);
         if (!serviceProvider)
