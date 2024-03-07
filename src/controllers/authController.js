@@ -56,8 +56,10 @@ async function handleLoginOfUser(req, res){
         //return res.status(200).json({ message: "User logged-in Successfully!" });
         
         const options = {
-            httpOnly: true,
-            secure: true
+            path:"/",
+            httpOnly: false,
+            secure: true,
+            sameSite:"strict"
         };
         return res
         .status(200)

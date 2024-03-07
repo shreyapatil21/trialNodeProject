@@ -2,6 +2,7 @@
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import bodyParser from "body-parser";
+import cors from "cors";
 dotenv.config({ path: "./env" });
 
 //2nd method for connecting db
@@ -17,6 +18,7 @@ import appointmentRoutes from "./routes/appointmentRoutes.js";
 import express from 'express';
 const app = express();
 
+
 app.use(bodyParser.json()); // Parse JSON bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
@@ -24,7 +26,12 @@ app.use(cookieParser());
 
 //Use routes
 
-
+app.use(
+    cors({
+        credentials: true,
+        origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    })
+);
 app.use('/user-stories', userStoryRoutes);
 app.use("/users", userRoutes);
 app.use("/service-providers", serviceProviderRoutes);
