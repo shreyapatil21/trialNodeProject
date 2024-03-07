@@ -64,7 +64,7 @@ async function handleLoginOfUser(req, res){
         return res
         .status(200)
         .cookie("accessToken",accessToken,options)
-        .json({ message: "User logged-in Successfully!" ,user})
+        .json({ message: "User logged-in Successfully!" ,user:{id:user._id,role:user.role}})
         
     } catch (error) {
         console.error('Error during login:', error);
