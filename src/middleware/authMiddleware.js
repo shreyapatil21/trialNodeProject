@@ -7,7 +7,7 @@ async function verifyJWT(req, res, next) {
   console.log("request: ", req);
   console.log("path route", req.route.path);
   if (!token) {
-    return res.status(401).json({ error: 'Unauthorized request' });
+    return res.status(401).json({ error: 'Unauthorized request md' });
   }
   // if(req.path == "./"){
   //   user.role ? "access":"debide"
@@ -69,4 +69,9 @@ async function verifyJWT(req, res, next) {
   }
 }
 
-export { verifyJWT };
+const getTokenObject = (req)=> {
+  const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
+  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  return decoded;
+}
+export { verifyJWT , getTokenObject};

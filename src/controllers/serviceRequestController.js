@@ -1,4 +1,5 @@
 // serviceRequestController.js
+import { getTokenObject } from '../middleware/authMiddleware.js';
 import ServiceRequest from '../models/serviceRequestModel.js';
 import jwt from "jsonwebtoken"
 
@@ -44,18 +45,17 @@ async function handleGetServiceRequestById(req, res) {
 
 async function handleCreateServiceRequest(req, res) {
   const body = req.body;
-  if (!body || !body.sp_user_id || !body.description || !body.req_status || !body.time_date || !body.service_request) {
+  if (!body || !body.sp_user_id || !body.description || !body.req_status || !body.service_request) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
-  const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decoded = getTokenObject(req)
   try {
     const newServiceRequest = await ServiceRequest.create({
       user_id: decoded._id,
       sp_user_id: body.sp_user_id,
       description: body.description,
       req_status: body.req_status,
-      time_date: new Date(body.time_date),
+      time_date: new Date(),
       service_request: body.service_request,  
     });
     await newServiceRequest.save(); // added this line on 27/2/24 (12:05 PM)
@@ -66,6 +66,7 @@ async function handleCreateServiceRequest(req, res) {
 }
 
 async function handleUpdateServiceRequestById(req, res) {
+  const tokenObj= getTokenObject(req);
   const requestId = req.params.requestId;
   const body = req.body;
   try {
@@ -74,7 +75,7 @@ async function handleUpdateServiceRequestById(req, res) {
       sp_user_id: body.sp_user_id,
       description: body.description,
       req_status: body.req_status,
-      time_date: new Date(body.time_date),
+      time_date: new Date(),
       service_request: body.service_request,
     });
     if (!updateServiceRequest) return res.status(404).json({ error: 'Service request not found' });

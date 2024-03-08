@@ -1,23 +1,24 @@
 // controllers/serviceProviderController.js
 
+import { getTokenObject } from "../middleware/authMiddleware.js";
 import ServiceProvider from "../models/ServiceProviderModel.js";
 import jwt from "jsonwebtoken"
 async function handleGetAllServiceProviders(req, res) {
+    
     try {
+
         const serviceProviders = await ServiceProvider.find();
         res.status(200).json(serviceProviders);
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ error: "Internal Server Error 6" });
     }
 }
 
-async function handleGetServiceProviderById(req, res) {
-    const serviceProviderId = req.params.serviceProviderId;
-    try {
+async function handleGetServiceProfile(req, res) {
+    try{
 
-        const token = req.cookies?.accessToken || req.header('Authorization')?.replace("Bearer ", "");
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
+        const decoded = getTokenObject(req)
+        console.log("service profile:",decoded);
         if (decoded.role == "Service Provider") {
             try {
                 console.log("serive provider profile");
@@ -31,7 +32,15 @@ async function handleGetServiceProviderById(req, res) {
             }
 
         }
-        console.log("out: ")
+    }
+    catch (error) {
+        console.log(error,"profile error");
+        res.status(500).json({ error: error.message });
+    }
+}
+async function handleGetServiceProviderById(req, res) {
+    const serviceProviderId = req.params.serviceProviderId;
+    try {
         const serviceProvider =
             await ServiceProvider.findById(serviceProviderId);
         if (!serviceProvider)
@@ -40,7 +49,7 @@ async function handleGetServiceProviderById(req, res) {
                 .json({ error: "Service provider not found" });
         return res.json(serviceProvider);
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ error: "Internal Server Error 4" });
     }
 }
 
@@ -88,7 +97,7 @@ async function handleUpdateServiceProviderById(req, res) {
                 .json({ error: "Service provider not found" });
         return res.json(updatedServiceProvider);
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ error: "Internal Server Error 3" });
     }
 }
 
@@ -103,7 +112,7 @@ async function handleDeleteServiceProviderById(req, res) {
                 .json({ error: "Service provider not found" });
         return res.json({ message: "Service provider deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ error: "Internal Server Error 2" });
     }
 }
 
@@ -113,4 +122,5 @@ export {
     handleCreateServiceProvider,
     handleUpdateServiceProviderById,
     handleDeleteServiceProviderById,
+    handleGetServiceProfile
 };
