@@ -8,7 +8,7 @@ async function handleGetAllServiceRequests(req, res) {
         req.header("Authorization")?.replace("Bearer ", "");
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    if (decoded.role === "Service Provider") {
+    if (decoded.role == "Service Provider") {
         try {
             const sp_user_id = decoded._id;
             const serviceRequests = await ServiceRequest.find({ sp_user_id });
@@ -16,7 +16,7 @@ async function handleGetAllServiceRequests(req, res) {
         } catch (error) {
             return res.status(500).json({ error: "Internal Server Error" });
         }
-    } else if (decoded.role === "Client" || decoded.role === "Admin") {
+    } else if (decoded.role == "Client") {
         try {
             let query = {};
             if (decoded.role === "Client") {
