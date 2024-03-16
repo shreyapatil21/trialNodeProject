@@ -17,13 +17,15 @@ import userStoryRoutes from './routes/userStoryRoutes.js';
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import express from 'express';
 const app = express();
-
-
+import { upload } from './middleware/multerMiddleware.js';
+// app.use(upload.fields([
+//     { name: 'avatar', maxCount: 1 }
+//   ]));
 app.use(bodyParser.json()); // Parse JSON bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(express.static('public'));
 //Use routes
 
 app.use(

@@ -122,8 +122,21 @@ async function handleCreateUser(req, res) {
   // Check if user already exist: username/email
   const existedUser = await User.findOne({
     $or: [{ username }, { email }]
-  })
-  if (existedUser) { return res.status(409).json({ message: "User with this username or email already exists." }) }
+  });
+  if (existedUser) { return res.status(409).json({ message: "User with this username or email already exists." }); }
+  // Check for avatar file
+  console.log("Request files:", req.file);
+  const avatarLocalPath = req.file?.path;
+  console.log("Avatar Path: ",avatarLocalPath);
+  if (!avatarLocalPath) {
+    return res.status(400).json({ error: 'Avatar file is required' });
+  }
+  // upload it to cloudinary, avatar
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  console.log("Avatar:  ",avatar);
+  if (!avatar || !avatar.url) {
+    return res.status(400).json({ error: 'Error while uploading avatar to Cloudinary' });
+  }
   // Create a user object (newUser) - create entry in db
   try {
     // const hashPassword = await bcrypt.hash(password, 10); //this line added- generally not needed
@@ -136,7 +149,8 @@ async function handleCreateUser(req, res) {
       lastname,
       gender,
       birth_date,
-      role
+      role,
+      avatar: avatar.url
     });
     //newUser.save();  //this line added
     // Check for user creation 
@@ -291,6 +305,31 @@ async function handleGetUserProfile(req, res) {
   }
 }
 
+async function updateUserAvatar(req, res){
+  const avatarLocalPath = req.file?.path
+
+  if (!avatarLocalPath) {
+    return res.status(400).json({ error: 'avatar file is missing' });
+  }
+  //TODO: delete old image - assignment
+  const avatar = await uploadOnCloudinary(avatarLocalPath)
+  if (!avatar || !avatar.url) {
+    return res.status(400).json({ error: 'Error while upoading avatar' });
+  }
+  const user = await User.findByIdAndUpdate(
+      req.user?._id,
+      {
+          $set:{
+              avatar: avatar.url
+          }
+      },
+      {new: true}
+  ).select("-password")
+  return res
+  .status(200)
+  .json({ message:'Avatar image updated successfully' });
+}
+
 export {
   handleGetAllUsers,
   handleGetUserById,
@@ -299,5 +338,6 @@ export {
   handleDeleteUserById,
   handleGetUserProfile,
   changeCurrentPassword,
-  handleUpdateUserFields
+  handleUpdateUserFields,
+  updateUserAvatar
 };

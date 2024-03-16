@@ -7,8 +7,9 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, trime: true},
   password: { type: String, required: true },
   //registration_date: {type: Date, required: true},
-  profile_photo: {
+  avatar: {
     type: String,
+    required: true,
     // title: {type: String},
     // privacy: {type: String, required: true},
     // image_path: {type: String, required: true},

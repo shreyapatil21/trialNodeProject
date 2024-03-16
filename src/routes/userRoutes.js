@@ -8,7 +8,9 @@ import {
   handleUpdateUserById,
   handleDeleteUserById,
   handleGetUserProfile,  // added this on 27/2/24 by Shreya
-  handleUpdateUserFields, // added on 5/3/24 by Shreya
+  handleUpdateUserFields,
+  changeCurrentPassword,
+  updateUserAvatar, // added on 5/3/24 by Shreya
 } from '../controllers/userController.js';
 // Direct Routes for register and logon
 import {handleLoginOfUser, handleLogOutOfUser} from '../controllers/authController.js'; //added this on 28/2/24 by Shreya
@@ -22,7 +24,11 @@ userRoutes.route('/:userId')
     .delete(verifyJWT,handleDeleteUserById);
 userRoutes.get('/profile',verifyJWT,handleGetUserProfile); //added this on 27/2/24 by Shreya
 // Register a new user
-userRoutes.post('/register', handleCreateUser);  //added this on 28/2/24 by Shreya
+userRoutes.post(
+  '/register', 
+  upload.single('avatar'),
+  handleCreateUser
+  );  //added this on 28/2/24 by Shreya
 // Login
 userRoutes.post('/login', handleLoginOfUser);  //added this on 28/2/24 by Shreya
 
@@ -40,5 +46,6 @@ userRoutes.put(
   // ]),
   handleUpdateUserFields
   ); //added this on 5/3/24 by Shreya
-
+userRoutes.route('/change-password').post(  verifyJWT,  changeCurrentPassword); // on 5/3/21
+userRoutes.route('/avatar').patch(  verifyJWT, upload.single("avatar"), updateUserAvatar);   // on 15/3/21
 export default userRoutes;
